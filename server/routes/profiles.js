@@ -53,9 +53,6 @@ router.get('/:id', function(req, res){
 })
 
 router.put('/editpage/:id', function (req, res){
-    if (!ObjectId.isValid(req.params.id))
-        return res.status(400).send(`No record with given id : ${req.params.id}`);
-
     var user = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
@@ -69,8 +66,23 @@ router.put('/editpage/:id', function (req, res){
         { new: true },
         (err, doc) => {
             if (!err) { res.send(doc); }
-            else { console.log('Error in Employee Update :' + JSON.stringify(err, undefined, 2)); }
+            else { console.log('Error in User Update :' + JSON.stringify(err, undefined, 2)); }
     });
+});
+
+router.put('/changepass/:id', function (req, res){
+    var user = {
+        password: req.body.password
+    };
+
+    console.log('Update user password');
+    User.findByIdAndUpdate(req.params.id,
+        { $set: user },
+        { new: true },
+        (err, doc) => {
+            if (!err) { res.send(doc); }
+            else { console.log('Error in User Password Update :' + JSON.stringify(err, undefined, 2)); }
+        });
 });
 
 module.exports = router

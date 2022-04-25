@@ -1,8 +1,10 @@
-const express = require('express')
-const router  = express.Router()
-const jwt     = require('jsonwebtoken')
+const express = require('express');
+const router  = express.Router();
+const jwt     = require('jsonwebtoken');
 
-const User = require('../models/user')
+const User = require('../models/user');
+const Donations = require('../models/donation');
+const Fundraisings = require('../models/fundraising');
 
 router.post('/register', (req, res) => {
     let userData = req.body
@@ -59,7 +61,6 @@ router.put('/editpage/:id', function (req, res){
         birthday: req.body.birthday,
         gender: req.body.gender,
     };
-
     console.log('Update user data');
     User.findByIdAndUpdate(req.params.id,
         { $set: user },
@@ -84,5 +85,31 @@ router.put('/changepass/:id', function (req, res){
             else { console.log('Error in User Password Update :' + JSON.stringify(err, undefined, 2)); }
         });
 });
+
+router.get('/mydonations/:id', function (req, res){
+    Donations.find({userid: req.params.id}, function(err, donations) {
+        if(err){
+            res.send(err);
+        }
+        else {
+            if (!donations) {
+                res.send("That user doesnt exist");
+            }
+            else {
+                donations.forEach(function(value, index, array){
+                    console.log(value.fundraisingid);
+                    Fundraisings.findById(value.fundraisingid)
+                        .exec(function(err, fundraisings){
+                            if (err){
+                                console.log("Error retrieving user");
+                            } else {
+                                res.send({donations, fundraisings});
+                            }
+                        })
+                });
+            }
+        }
+    })
+})
 
 module.exports = router

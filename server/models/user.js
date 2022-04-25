@@ -9,6 +9,7 @@ const userSchema = new Schema({
     city: String,
     address: String,
     birthday: String,
-    gender: String
+    gender: String,
+    imagePath: String
 })
 module.exports = mongoose.model('user', userSchema, 'users');

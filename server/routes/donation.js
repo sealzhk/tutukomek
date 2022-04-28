@@ -2,6 +2,7 @@ const express = require('express')
 const router  = express.Router()
 
 const Donation = require('../models/donation')
+const Donations = require("../models/donation");
 
 router.post('/donate', (req, res) => {
     let donationData = req.body

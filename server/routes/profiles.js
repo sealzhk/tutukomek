@@ -1,10 +1,33 @@
 const express = require('express');
 const router  = express.Router();
 const jwt     = require('jsonwebtoken');
+const multer  = require('multer');
 
 const User = require('../models/user');
 const Donations = require('../models/donation');
-const Fundraisings = require('../models/fundraising');
+const Fundraising = require("../models/fundraising");
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/images')
+    },
+    filename: (req, file, cb) => {
+        console.log(file);
+        var filetype = '';
+        if(file.mimetype === 'image/gif') {
+            filetype = 'gif';
+        }
+        if(file.mimetype === 'image/png') {
+            filetype = 'png';
+        }
+        if(file.mimetype === 'image/jpeg') {
+            filetype = 'jpg';
+        }
+        cb(null, 'image-' + Date.now() + '.' + filetype);
+    }
+});
+
+const upload = multer({ storage: storage });
 
 router.post('/register', (req, res) => {
     let userData = req.body
@@ -54,13 +77,15 @@ router.get('/:id', function(req, res){
         })
 })
 
-router.put('/editpage/:id', function (req, res){
+router.put('/editpage/:id', upload.single('imagePath'), function (req, res){
     var user = {
         firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        birthday: req.body.birthday,
-        gender: req.body.gender,
+        lastname:  req.body.lastname,
+        birthday:  req.body.birthday,
+        gender:    req.body.gender,
+        imagePath: 'http://localhost:3000/images/' + req.file.filename
     };
+    console.log(req.file.filename)
     console.log('Update user data');
     User.findByIdAndUpdate(req.params.id,
         { $set: user },
@@ -96,17 +121,7 @@ router.get('/mydonations/:id', function (req, res){
                 res.send("That user doesnt exist");
             }
             else {
-                donations.forEach(function(value, index, array){
-                    console.log(value.fundraisingid);
-                    Fundraisings.findById(value.fundraisingid)
-                        .exec(function(err, fundraisings){
-                            if (err){
-                                console.log("Error retrieving user");
-                            } else {
-                                res.send({donations, fundraisings});
-                            }
-                        })
-                });
+                res.send(donations);
             }
         }
     })

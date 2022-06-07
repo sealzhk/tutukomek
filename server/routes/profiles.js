@@ -5,7 +5,6 @@ const multer  = require('multer');
 
 const User = require('../models/user');
 const Donations = require('../models/donation');
-const Fundraising = require("../models/fundraising");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -77,7 +76,7 @@ router.get('/:id', function(req, res){
         })
 })
 
-router.put('/editpage/:id', upload.single('imagePath'), function (req, res){
+router.put('/editpageimage/:id', upload.single('imagePath'), function (req, res){
     var user = {
         firstname: req.body.firstname,
         lastname:  req.body.lastname,
@@ -85,8 +84,8 @@ router.put('/editpage/:id', upload.single('imagePath'), function (req, res){
         gender:    req.body.gender,
         imagePath: 'http://localhost:3000/images/' + req.file.filename
     };
-    console.log(req.file.filename)
-    console.log('Update user data');
+    console.log(req);
+    console.log('Update user data with image');
     User.findByIdAndUpdate(req.params.id,
         { $set: user },
         { new: true },
@@ -94,6 +93,24 @@ router.put('/editpage/:id', upload.single('imagePath'), function (req, res){
             if (!err) { res.send(doc); }
             else { console.log('Error in User Update :' + JSON.stringify(err, undefined, 2)); }
     });
+});
+
+router.put('/editpagewithoutimage/:id', function (req, res){
+    var user = {
+        firstname: req.body.firstname,
+        lastname:  req.body.lastname,
+        birthday:  req.body.birthday,
+        gender:    req.body.gender,
+        imagePath: req.body.imagePath
+    };
+    console.log('Update user data without image');
+    User.findByIdAndUpdate(req.params.id,
+        { $set: user },
+        { new: true },
+        (err, doc) => {
+            if (!err) { res.send(doc); }
+            else { console.log('Error in User Update:' + JSON.stringify(err, undefined, 2)); }
+        });
 });
 
 router.put('/changepass/:id', function (req, res){
